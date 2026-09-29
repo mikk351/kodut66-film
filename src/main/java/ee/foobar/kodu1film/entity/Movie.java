@@ -1,5 +1,6 @@
 package ee.foobar.kodu1film.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,10 @@ public class Movie {
     private Long id;
     private String name;
     private Boolean rented;
+
+    @JsonBackReference
+    @ManyToOne
+    private Rental activeRental;
 
     @ManyToOne
     private Type type;

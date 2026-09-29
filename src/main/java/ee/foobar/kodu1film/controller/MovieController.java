@@ -1,5 +1,6 @@
 package ee.foobar.kodu1film.controller;
 
+import ee.foobar.kodu1film.dto.NewMovie;
 import ee.foobar.kodu1film.entity.Movie;
 import ee.foobar.kodu1film.entity.Type;
 import ee.foobar.kodu1film.repository.MovieRepository;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,13 +31,35 @@ public class MovieController {
         return movieRepository.findByRentedFalseOrRentedIsNull();
     }
 
+    @PostMapping("addMultiMovies")
+    public List<Movie> addMoviesMultiple(@RequestBody List<NewMovie> newMovies) {
+        List<Movie> movies = new ArrayList<>();
+        for (NewMovie newMovie: newMovies) {
+            Movie movie = new Movie();
+            Type type = typeRepository.findById(newMovie.typeId()).orElseThrow();
+            movie.setName(newMovie.name());
+            movie.setType(type);
+            movie.setRented(false);
+            movie.setActiveRental(null);
+
+            movies.add(movie);
+        }
+        return movieRepository.saveAll(movies);
+    }
 
     @PostMapping("movies")
-    public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+    public ResponseEntity<Movie> addMovie(@RequestBody NewMovie newMovie) {
+        Movie movie = new Movie();
+        Type type = typeRepository.findById(newMovie.typeId()).orElseThrow();
+        movie.setName(newMovie.name());
+        movie.setType(type);
+        movie.setRented(false);
+        movie.setActiveRental(null);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(movieRepository.save(movie));
     }
 
-    @PatchMapping("movies/{id}")
+    @PutMapping("movies/{id}")
     public Movie editMovie(@PathVariable Long id, @RequestBody Movie movie) {
         if (id == null || id <= 0) {
             throw new RuntimeException("Id is required");
@@ -77,8 +101,6 @@ public class MovieController {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Movie not found"));
 
-//        Type type = typeRepository.findById(request.typeId())
-//                .orElseThrow(() -> new RuntimeException("Type not found"));
         Type type = new Type();
         type.setId(request.typeId());
         movie.setType(type);

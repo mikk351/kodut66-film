@@ -15,6 +15,6 @@ public class Type {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type;
+    private MovieType type;
     private Double price;
 }
